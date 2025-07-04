@@ -1,0 +1,37 @@
+---
+services:
+  base:
+    image: ${DOCKER_REGISTRY}/base-${HOST_PLATFORM}_${HOST_SYSTEM}:${OPENVINO_ONNX_VERSION}
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: source/containers/images/base/${HOST_PLATFORM}_${HOST_SYSTEM}/Dockerfile
+      args:
+        DOCKER_IMAGE_BASE: ${DOCKER_IMAGE_BASE}
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY}
+        USER_GID: ${USER_GID}
+        USER_UID: ${USER_UID}
+    deploy:
+      replicas: 0
+
+  openvino_onnx:
+    image: ${DOCKER_REGISTRY}/openvino_onnx-${HOST_PLATFORM}_${HOST_SYSTEM}:${OPENVINO_ONNX_VERSION}
+    container_name: openvino_onnx
+    restart: unless-stopped
+    depends_on:
+      - base
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: source/containers/images/openvino_onnx/${HOST_PLATFORM}_${HOST_SYSTEM}/Dockerfile
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY}
+        VERSION_TAG: ${OPENVINO_ONNX_VERSION}
+    command: ${RUNTIME_VARIANT}
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: '10m'
+    profiles:
+      - regular_service
+    volumes:
+      - ${PROJECT_ROOT}/volumes/build:/opt/openvino_onnx/build
