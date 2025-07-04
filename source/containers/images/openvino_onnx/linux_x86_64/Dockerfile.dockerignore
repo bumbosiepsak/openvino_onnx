@@ -1,0 +1,4 @@
+**
+!source/app
+!source/containers/images/openvino_onnx/linux_x86_64/run_command.bat
+!source/containers/images/openvino_onnx/linux_x86_64/variants/cpu
